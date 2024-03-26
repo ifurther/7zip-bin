@@ -1,0 +1,50 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+
+name: Auto update 7za
+
+on:
+  schedule:
+    - cron: '5 4 5 */3 *'
+
+jobs:
+  update-win:
+    name: update 7za on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: 
+          - windows-latest
+        arch: ['x86','x64','arm','arm64']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download ${{ matrix.arch }} version
+        if: ${{ matrix.arch != 'x86' }}
+        uses: robinraju/release-downloader@v1.9
+        id:   downexe
+        with:
+          repository: "ip7z/7zip"
+          latest: true
+          fileName: "7z*-${{ matrix.arch }}.exe"
+          extract: false
+      - name: Download x86 version
+        if: ${{ matrix.arch == 'x86' }}
+        uses: robinraju/release-downloader@v1.9
+        id:   downexe-x86
+        with:
+          repository: "ip7z/7zip"
+          latest: true
+          fileName: "7z*.exe"
+          extract: false
+      - name: install 7zip on ${{ matrix.os }}
+        if: ${{ matrix.arch != 'x86' }}
+        run: |
+          7z${{steps.downexe.outputs.tag_name}}-${{ matrix.os }}.exe /S /D=".\7-Zip"
+          
+        
+  update-mac:
+    name: update 7za
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install p7zip
