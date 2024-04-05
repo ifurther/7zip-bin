@@ -9,7 +9,7 @@ on:
 
 jobs:
   update-win:
-    name: update 7za on ${{ matrix.os }}
+    name: update 7za on ${{ matrix.arch }} ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -39,7 +39,11 @@ jobs:
       - name: install 7zip on ${{ matrix.os }}
         if: ${{ matrix.arch != 'x86' }}
         run: |
-          7z${{steps.downexe.outputs.tag_name}}-${{ matrix.os }}.exe /S /D=".\7-Zip"
+          ${{ fromJson(steps.downexe.outputs.downloaded_files)[0] }}.exe /S /D=".\7-Zip"
+      - name: install 7zip on ${{ matrix.os }}
+        if: ${{ matrix.arch == 'x86' }}
+        run: |
+          ${{ fromJson(steps.downexe.outputs.downloaded_files)[2] }}.exe /S /D=".\7-Zip"
           
         
   update-mac:
