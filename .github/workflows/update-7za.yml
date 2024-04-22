@@ -60,7 +60,8 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           brew update
-          brew install p7zip
+          brew uninstall p7zip
+          brew install sevenzip
           cp /opt/brew/*/bin/7zz mac/${arch}/7z
       - id: commit_files
         name: Commit files  
